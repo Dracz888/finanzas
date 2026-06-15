@@ -4,9 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev.js",
+    "dev:web": "vite",
+    "server": "node server/server.js",
     "build": "vite build",
-    "build:escritorio": "vite build --config vite.config.singlefile.js",
+    "start": "npm run build && node server/server.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

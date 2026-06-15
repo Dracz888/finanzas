@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { api } from './api.js';
 import {
-  resolvePerms, DEPARTAMENTOS, MODULOS, METODOS_PAGO, getUsers, saveUsers, getRoles, addHistorial,
+  resolvePerms, DEPARTAMENTOS, MODULOS, METODOS_PAGO, getRoles, puedeLeerKG,
 } from './data.js';
 import { sharedStyles, KModal, FormGroup, KInput, Badge } from './shared.jsx';
+import { KomplexModule } from './komplex.jsx';
 
 /* ═══════════════════════ INICIO ═══════════════════════ */
 export function DashboardTab({ user, onNavigate }) {
@@ -12,7 +14,6 @@ export function DashboardTab({ user, onNavigate }) {
 
   return (
     <div style={{ padding: "26px 20px", maxWidth: "1100px", margin: "0 auto" }}>
-      {/* Bienvenida */}
       <div style={{
         background: "var(--bg2)", border: "1px solid var(--border)",
         borderLeft: `3px solid ${depto.color || "#C9A227"}`, borderRadius: "12px",
@@ -26,7 +27,6 @@ export function DashboardTab({ user, onNavigate }) {
         </div>
       </div>
 
-      {/* Permisos del cargo */}
       <SectionTitle title="TU PAPEL DE ACCESO" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px", marginBottom: "26px" }}>
         <PermCard ok={perms.canManageUsers}       label="Gestionar usuarios y cargos" icon="👤" />
@@ -35,21 +35,26 @@ export function DashboardTab({ user, onNavigate }) {
         <PermCard ok={perms.canRegistrarEgresos}  label="Registrar egresos / gastos"  icon="💸" />
       </div>
 
-      {/* Módulos del departamento */}
-      <SectionTitle title="MÓDULOS DE TU GERENCIA" right="PRÓXIMAMENTE" />
+      <SectionTitle title="MÓDULOS DE TU GERENCIA" />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "12px" }}>
         {modulos.map(mid => {
           const m = MODULOS[mid];
           if (!m) return null;
+          const disponible = perms.departamento === "komplex_gym" && (mid === "afiliaciones" || mid === "entrenadores");
           return (
             <div key={mid} onClick={() => onNavigate("gestion")} style={{
               background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "12px",
-              padding: "18px", cursor: "pointer", transition: "all 0.15s", position: "relative",
+              padding: "18px", cursor: "pointer", transition: "all 0.15s",
             }}
               onMouseEnter={e => e.currentTarget.style.borderColor = depto.color || "#C9A227"}
               onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}>
               <div style={{ fontSize: "26px", marginBottom: "8px" }}>{m.icon}</div>
-              <div style={{ fontWeight: 600, fontSize: "15px" }}>{m.label}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                <span style={{ fontWeight: 600, fontSize: "15px" }}>{m.label}</span>
+                {disponible
+                  ? <Badge color="#22c55e" label="ACTIVO" />
+                  : <Badge color="var(--gray)" label="PRÓXIMO" />}
+              </div>
               <p style={{ fontSize: "12px", color: "var(--gray2)", marginTop: "5px", lineHeight: 1.5 }}>{m.desc}</p>
             </div>
           );
@@ -74,8 +79,17 @@ function PermCard({ ok, label, icon }) {
   );
 }
 
-/* ═══════════════════════ GESTIÓN (placeholder por módulo) ═══════════════════════ */
+/* ═══════════════════════ GESTIÓN ═══════════════════════ */
 export function GestionTab({ user }) {
+  const perms = resolvePerms(user);
+
+  // Komplex Gym ya está construido; el resto de gerencias se muestran como "Próximamente".
+  if (puedeLeerKG(perms)) return <KomplexModule user={user} />;
+
+  return <PlaceholderGestion user={user} />;
+}
+
+function PlaceholderGestion({ user }) {
   const perms = resolvePerms(user);
   const depto = DEPARTAMENTOS[perms.departamento] || {};
   const modulos = depto.modulos || [];
@@ -99,16 +113,11 @@ export function GestionTab({ user }) {
 
       <div style={{ padding: "40px 20px", maxWidth: "760px", margin: "0 auto" }}>
         {activo && MODULOS[activo] && (
-          <div style={{
-            background: "var(--bg2)", border: "1px dashed var(--border2)", borderRadius: "14px",
-            padding: "44px 32px", textAlign: "center",
-          }}>
+          <div style={{ background: "var(--bg2)", border: "1px dashed var(--border2)", borderRadius: "14px", padding: "44px 32px", textAlign: "center" }}>
             <div style={{ fontSize: "48px", marginBottom: "14px" }}>{MODULOS[activo].icon}</div>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: "26px", letterSpacing: "2px", marginBottom: "8px" }}>{MODULOS[activo].label}</h2>
             <p style={{ fontSize: "14px", color: "var(--gray2)", lineHeight: 1.6, maxWidth: "440px", margin: "0 auto 18px" }}>{MODULOS[activo].desc}</p>
             <Badge color={depto.color} label="EN CONSTRUCCIÓN — PRÓXIMA FASE" />
-
-            {/* Métodos de pago: base común de compra/venta */}
             <div style={{ marginTop: "28px", textAlign: "left", background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: "10px", padding: "16px 18px" }}>
               <p style={{ fontFamily: "var(--font-cond)", fontSize: "12px", letterSpacing: "2px", color: "var(--gray2)", textTransform: "uppercase", marginBottom: "10px" }}>Métodos de pago disponibles</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -127,7 +136,7 @@ export function GestionTab({ user }) {
 }
 
 /* ═══════════════════════ PERFIL ═══════════════════════ */
-export function PerfilTab({ user, onUserUpdate }) {
+export function PerfilTab({ user }) {
   const perms = resolvePerms(user);
   const depto = DEPARTAMENTOS[perms.departamento] || {};
   const [showPass, setShowPass] = useState(false);
@@ -157,7 +166,7 @@ export function PerfilTab({ user, onUserUpdate }) {
 
       {showPass && (
         <KModal onClose={() => setShowPass(false)} width={420}>
-          <CambiarPassForm user={user} onClose={() => setShowPass(false)} onUserUpdate={onUserUpdate} />
+          <CambiarPassForm user={user} onClose={() => setShowPass(false)} />
         </KModal>
       )}
     </div>
@@ -173,23 +182,28 @@ function InfoRow({ label, value }) {
   );
 }
 
-function CambiarPassForm({ user, onClose, onUserUpdate }) {
+function CambiarPassForm({ user, onClose }) {
   const [actual,  setActual]  = useState("");
   const [nueva,   setNueva]   = useState("");
   const [confirm, setConfirm] = useState("");
   const [error,   setError]   = useState("");
   const [ok,      setOk]      = useState(false);
+  const [saving,  setSaving]  = useState(false);
 
-  function handleGuardar() {
-    const fresh = getUsers().find(u => u.id === user.id);
-    if (!fresh || fresh.pass !== actual) { setError("La contraseña actual es incorrecta."); return; }
+  async function handleGuardar() {
     if (nueva.length < 6) { setError("La nueva contraseña debe tener mínimo 6 caracteres."); return; }
     if (nueva !== confirm) { setError("Las contraseñas no coinciden."); return; }
-    saveUsers(getUsers().map(u => u.id === user.id ? { ...u, pass: nueva } : u));
-    addHistorial(`${user.nombre} cambió su contraseña`, user.id, "usuario_edit");
-    if (onUserUpdate) onUserUpdate({ ...user, pass: nueva });
-    setOk(true);
-    setTimeout(onClose, 1500);
+    setSaving(true);
+    try {
+      // verifica la contraseña actual intentando autenticarse
+      await api.login(user.user, actual);
+      await api.editarUsuario(user.id, { pass: nueva });
+      setOk(true);
+      setTimeout(onClose, 1500);
+    } catch {
+      setError("La contraseña actual es incorrecta.");
+      setSaving(false);
+    }
   }
 
   if (ok) {
@@ -205,18 +219,12 @@ function CambiarPassForm({ user, onClose, onUserUpdate }) {
     <div>
       <h3 style={{ fontFamily: "var(--font-display)", fontSize: "20px", letterSpacing: "2px", marginBottom: "18px", paddingRight: "32px" }}>CAMBIAR CONTRASEÑA</h3>
       {error && <div style={{ background: "rgba(211,47,47,0.12)", border: "1px solid rgba(211,47,47,0.3)", borderRadius: "6px", padding: "10px 14px", fontSize: "13px", color: "#ef9a9a", marginBottom: "14px" }}>⚠️ {error}</div>}
-      <FormGroup label="Contraseña Actual">
-        <KInput type="password" value={actual} onChange={e => setActual(e.target.value)} placeholder="••••••••" />
-      </FormGroup>
-      <FormGroup label="Nueva Contraseña" mt={14}>
-        <KInput type="password" value={nueva} onChange={e => setNueva(e.target.value)} placeholder="Mínimo 6 caracteres" />
-      </FormGroup>
-      <FormGroup label="Confirmar Nueva Contraseña" mt={14}>
-        <KInput type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repite la contraseña" />
-      </FormGroup>
+      <FormGroup label="Contraseña Actual"><KInput type="password" value={actual} onChange={e => setActual(e.target.value)} placeholder="••••••••" /></FormGroup>
+      <FormGroup label="Nueva Contraseña" mt={14}><KInput type="password" value={nueva} onChange={e => setNueva(e.target.value)} placeholder="Mínimo 6 caracteres" /></FormGroup>
+      <FormGroup label="Confirmar Nueva Contraseña" mt={14}><KInput type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Repite la contraseña" /></FormGroup>
       <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
         <button onClick={onClose} style={{ ...sharedStyles.btnSecundario, flex: 1 }}>Cancelar</button>
-        <button onClick={handleGuardar} style={{ ...sharedStyles.btnPrimario, flex: 1 }}>Guardar</button>
+        <button onClick={handleGuardar} disabled={saving} style={{ ...sharedStyles.btnPrimario, flex: 1 }}>{saving ? "Guardando…" : "Guardar"}</button>
       </div>
     </div>
   );

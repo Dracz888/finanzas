@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import {
-  getUsers, resolvePerms, initStorage, getTheme, saveTheme, addHistorial, getRoles,
-} from './data.js';
+import { api, setToken, getToken } from './api.js';
+import { resolvePerms, getTheme, saveTheme, getRoles, setCargos } from './data.js';
 import { Spinner } from './shared.jsx';
 import { DashboardTab, GestionTab, PerfilTab } from './vistas.jsx';
 import { CargosTab, PersonalTab, AuditoriaTab } from './admin.jsx';
@@ -37,21 +36,19 @@ function LoginScreen({ onLogin }) {
 
   useEffect(() => { setTimeout(() => setMounted(true), 60); }, []);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     if (!usuario || !contrasena) { setError("Completa todos los campos."); return; }
     setLoading(true);
-    setTimeout(() => {
-      const found = getUsers().find(u => u.user === usuario && u.pass === contrasena && u.activo);
-      if (found) {
-        addHistorial(`${found.nombre} inició sesión`, found.id, "login");
-        onLogin(found);
-      } else {
-        setError("Usuario o contraseña incorrectos, o cuenta inactiva.");
-        setLoading(false);
-      }
-    }, 700);
+    try {
+      const { token, user } = await api.login(usuario, contrasena);
+      setToken(token);
+      await onLogin(user);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
   }
 
   const inputStyle = {
@@ -215,38 +212,45 @@ function Header({ user, tab, setTab, onLogout, theme, toggleTheme }) {
 }
 
 /* ═══════════════════════ APP ROOT ═══════════════════════ */
-initStorage();  // siembra/migra los datos antes del primer render
-
-function restoreSession() {
-  const saved = sessionStorage.getItem("dc_session");
-  if (!saved) return null;
-  const fresh = getUsers().find(u => u.id === JSON.parse(saved).id);
-  return fresh && fresh.activo ? fresh : null;
-}
-
 export default function App() {
-  const [user,  setUser]  = useState(restoreSession);
-  const [tab,   setTab]   = useState("dashboard");
-  const [theme, setTheme] = useState(getTheme);
+  const [user,    setUser]    = useState(null);
+  const [tab,     setTab]     = useState("dashboard");
+  const [theme,   setTheme]   = useState(getTheme);
+  const [booting, setBooting] = useState(true);
 
   useEffect(() => { document.body.classList.toggle("light", theme === "light"); }, [theme]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (getToken()) {
+          const [me, cargos] = await Promise.all([api.me(), api.cargos()]);
+          setCargos(cargos);
+          setUser(me.user);
+        }
+      } catch { setToken(null); }
+      finally { setBooting(false); }
+    })();
+  }, []);
 
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next); saveTheme(next);
   }
 
-  function handleLogin(userData) {
-    setUser(userData);
+  async function handleLogin(u) {
+    try { setCargos(await api.cargos()); } catch { /* usa fallback local */ }
+    setUser(u);
     setTab("dashboard");
-    sessionStorage.setItem("dc_session", JSON.stringify({ id: userData.id }));
   }
   function handleLogout() {
+    api.logout().catch(() => {});
+    setToken(null);
     setUser(null);
-    sessionStorage.removeItem("dc_session");
     setTab("dashboard");
   }
 
+  if (booting) return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg)" }}><Spinner size={26} /></div>;
   if (!user) return <LoginScreen onLogin={handleLogin} />;
 
   const perms = resolvePerms(user);
@@ -258,7 +262,7 @@ export default function App() {
         {tab === "dashboard" && <DashboardTab user={user} onNavigate={setTab} />}
         {tab === "gestion"   && <GestionTab   user={user} />}
         {tab === "admin"     && perms.canManageUsers && <AdminTab user={user} />}
-        {tab === "perfil"    && <PerfilTab user={user} onUserUpdate={u => { setUser(u); sessionStorage.setItem("dc_session", JSON.stringify({ id: u.id })); }} />}
+        {tab === "perfil"    && <PerfilTab user={user} onUserUpdate={setUser} />}
       </main>
     </div>
   );
