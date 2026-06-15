@@ -47,14 +47,17 @@ function LoginScreen({ onLogin }) {
 
       <div style={{ width: "100%", maxWidth: "400px", opacity: mounted ? 1 : 0, transform: mounted ? "translateY(0)" : "translateY(24px)", transition: "opacity 0.5s ease, transform 0.5s ease" }}>
         <div style={{ textAlign: "center", marginBottom: "36px" }}>
-          <img src="/logo-dark.jpg" alt="Komplex GYM" style={{ width: "260px", maxWidth: "90%", borderRadius: "8px" }} />
-          <p style={{ fontFamily: "var(--font-cond)", fontSize: "11px", letterSpacing: "5px", color: "var(--gray)", textTransform: "uppercase", marginTop: "10px" }}>Sistema Interno de Gestión</p>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
+            <div style={{ width: "48px", height: "48px", background: "linear-gradient(135deg, #C9A227 0%, #e0b84a 100%)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "26px", boxShadow: "0 4px 20px rgba(201,162,39,0.4)" }}>DC</div>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: "38px", letterSpacing: "4px", color: "var(--text)" }}>DORADO CLUB</span>
+          </div>
+          <p style={{ fontFamily: "var(--font-cond)", fontSize: "11px", letterSpacing: "5px", color: "var(--gray)", textTransform: "uppercase", marginTop: "4px" }}>Sistema de Gestión Empresarial</p>
         </div>
 
         <div style={{ background: "var(--bg2)", border: "1px solid var(--border2)", borderRadius: "14px", padding: "36px 32px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: 0, left: "15%", right: "15%", height: "2px", background: "linear-gradient(90deg, transparent, var(--red), transparent)" }} />
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "30px", letterSpacing: "3px", marginBottom: "4px" }}>INICIAR SESIÓN</h2>
-          <p style={{ fontSize: "13px", color: "var(--gray2)", marginBottom: "28px" }}>Acceso exclusivo para personal Komplex</p>
+          <p style={{ fontSize: "13px", color: "var(--gray2)", marginBottom: "28px" }}>Acceso exclusivo para personal autorizado</p>
 
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: "16px" }}>
@@ -81,7 +84,7 @@ function LoginScreen({ onLogin }) {
             </div>
 
             {error && (
-              <div style={{ background: "rgba(211,47,47,0.12)", border: "1px solid rgba(211,47,47,0.3)", borderRadius: "6px", padding: "10px 14px", fontSize: "13px", color: "#ef9a9a", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>⚠️ {error}</div>
+              <div style={{ background: "rgba(201,162,39,0.12)", border: "1px solid rgba(201,162,39,0.3)", borderRadius: "6px", padding: "10px 14px", fontSize: "13px", color: "#e0b84a", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>⚠️ {error}</div>
             )}
 
             <button type="submit" disabled={loading}
@@ -91,7 +94,7 @@ function LoginScreen({ onLogin }) {
             >{loading ? <><Spinner /> ACCEDIENDO...</> : "INGRESAR"}</button>
           </form>
         </div>
-        <p style={{ textAlign: "center", marginTop: "22px", fontFamily: "var(--font-cond)", fontSize: "13px", fontStyle: "italic", color: "var(--red)", letterSpacing: "1px" }}>¡Eleva tu Nivel!</p>
+        <p style={{ textAlign: "center", marginTop: "22px", fontFamily: "var(--font-cond)", fontSize: "13px", fontStyle: "italic", color: "var(--red)", letterSpacing: "1px" }}>Excelencia en Gestión Empresarial</p>
       </div>
     </div>
   );
@@ -172,12 +175,12 @@ function GestionTab({ user }) {
   );
 }
 
-/* ── ADMINISTRACIÓN (sub-tabs) ── */
+/* ── PANEL DE ACCESO (sub-tabs) ── */
 function AdminTab({ user }) {
   const [sub, setSub] = useState("personal");
   const tabs = [
-    { id: "personal",  label: "PERSONAL"  },
-    { id: "roles",     label: "ROLES"     },
+    { id: "personal",  label: "USUARIOS"  },
+    { id: "roles",     label: "CARGOS"    },
     { id: "auditoria", label: "AUDITORÍA" },
     { id: "backup",    label: "BACKUP"    },
   ];
@@ -220,16 +223,19 @@ function Header({ user, tab, setTab, onLogout, theme, toggleTheme }) {
     { id: "gestion",    label: "GESTIÓN"       },
     { id: "calendario", label: "CALENDARIO"    },
     { id: "metricas",   label: "MÉTRICAS"      },
-    ...(perms.canManageUsers ? [{ id: "admin", label: "ADMINISTRACIÓN" }] : []),
+    ...(perms.canManageUsers ? [{ id: "admin", label: "ACCESO" }] : []),
     { id: "perfil",     label: "PERFIL"        },
   ];
 
   return (
     <header style={{ background: "var(--bg2)", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, zIndex: 100 }}>
-      <div style={{ height: "3px", background: "linear-gradient(90deg, var(--red) 0%, #7b1111 60%, transparent 100%)" }} />
+      <div style={{ height: "3px", background: "linear-gradient(90deg, var(--red) 0%, #a07d1a 60%, transparent 100%)" }} />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px", height: "54px", maxWidth: "1400px", margin: "0 auto", gap: "10px" }}>
 
-        <img src="/logo-k.jpg" alt="K" style={{ height: "34px", borderRadius: "4px", flexShrink: 0 }} />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+          <div style={{ width: "30px", height: "30px", background: "linear-gradient(135deg, #C9A227 0%, #e0b84a 100%)", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", fontFamily: "var(--font-display)", color: "#1a1a1a", fontWeight: 700, letterSpacing: "0.5px" }}>DC</div>
+          <span className="desktop-nav" style={{ fontFamily: "var(--font-display)", fontSize: "16px", letterSpacing: "2px", color: "var(--red)" }}>DORADO CLUB</span>
+        </div>
 
         <nav className="desktop-nav" style={{ display: "flex", gap: "3px", flex: 1, justifyContent: "center", flexWrap: "nowrap" }}>
           {tabs.map(t => (
@@ -324,7 +330,7 @@ export default function App() {
     const t = getTheme();
     setTheme(t);
     applyTheme(t);
-    const saved = sessionStorage.getItem("komplex_session");
+    const saved = sessionStorage.getItem("dc_session");
     if (saved) {
       const parsed = JSON.parse(saved);
       const fresh  = getUsers().find(u => u.id === parsed.id);
@@ -344,12 +350,12 @@ export default function App() {
 
   function handleLogin(userData) {
     setUser(userData);
-    sessionStorage.setItem("komplex_session", JSON.stringify({ id: userData.id }));
+    sessionStorage.setItem("dc_session", JSON.stringify({ id: userData.id }));
   }
 
   function handleLogout() {
     setUser(null);
-    sessionStorage.removeItem("komplex_session");
+    sessionStorage.removeItem("dc_session");
     setTab("dashboard");
   }
 
@@ -367,7 +373,7 @@ export default function App() {
         {tab === "calendario" && <CalendarioTab user={user} />}
         {tab === "metricas"   && <MetricasTab   user={user} />}
         {tab === "admin"      && perms.canManageUsers && <AdminTab user={user} />}
-        {tab === "perfil"     && <PerfilTab     user={user} onUserUpdate={u => { setUser(u); sessionStorage.setItem("komplex_session", JSON.stringify({ id: u.id })); }} />}
+        {tab === "perfil"     && <PerfilTab     user={user} onUserUpdate={u => { setUser(u); sessionStorage.setItem("dc_session", JSON.stringify({ id: u.id })); }} />}
       </main>
     </div>
   );

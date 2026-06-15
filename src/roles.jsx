@@ -48,24 +48,24 @@ export function RolesTab({ user }) {
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", letterSpacing: "2px" }}>GESTIÓN DE ROLES</h1>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", letterSpacing: "2px" }}>GESTIÓN DE CARGOS</h1>
           <p style={{ fontSize: "13px", color: "var(--gray2)", marginTop: "2px" }}>
-            {systemRoles.length} roles del sistema · {customRoles.length} roles personalizados
+            {systemRoles.length} cargos del sistema · {customRoles.length} cargos personalizados
           </p>
         </div>
         <button onClick={() => setShowForm(true)} style={{
-          background: "var(--red)", color: "#fff", border: "none",
+          background: "var(--red)", color: "#000", border: "none",
           borderRadius: "8px", padding: "10px 20px",
-          fontFamily: "var(--font-display)", fontSize: "14px", letterSpacing: "2px", cursor: "pointer",
+          fontFamily: "var(--font-display)", fontSize: "14px", letterSpacing: "2px", cursor: "pointer", fontWeight: 700,
         }}
         onMouseEnter={e => e.currentTarget.style.background = "var(--red-dark)"}
         onMouseLeave={e => e.currentTarget.style.background = "var(--red)"}
-        >+ NUEVO ROL</button>
+        >+ NUEVO CARGO</button>
       </div>
 
       <div style={{ marginBottom: "24px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "16px", letterSpacing: "2px", color: "var(--gray2)" }}>ROLES DEL SISTEMA</h2>
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "16px", letterSpacing: "2px", color: "var(--gray2)" }}>CARGOS DEL SISTEMA</h2>
           <div style={{ height: "1px", flex: 1, background: "var(--border)" }} />
           <span style={{ fontSize: "10px", color: "var(--gray)", fontFamily: "'Barlow Condensed'", letterSpacing: "1px" }}>NO EDITABLES</span>
         </div>
@@ -78,7 +78,7 @@ export function RolesTab({ user }) {
 
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "16px", letterSpacing: "2px", color: "var(--gray2)" }}>ROLES PERSONALIZADOS</h2>
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "16px", letterSpacing: "2px", color: "var(--gray2)" }}>CARGOS PERSONALIZADOS</h2>
           <div style={{ height: "1px", flex: 1, background: "var(--border)" }} />
         </div>
         {customRoles.length === 0 ? (
@@ -88,8 +88,8 @@ export function RolesTab({ user }) {
             textAlign: "center", color: "var(--gray)",
           }}>
             <div style={{ fontSize: "36px", marginBottom: "10px" }}>🏷️</div>
-            <p style={{ fontFamily: "'Barlow Condensed'", fontSize: "14px", letterSpacing: "2px", marginBottom: "6px" }}>SIN ROLES PERSONALIZADOS</p>
-            <p style={{ fontSize: "12px" }}>Crea roles con permisos específicos para tu equipo.</p>
+            <p style={{ fontFamily: "'Barlow Condensed'", fontSize: "14px", letterSpacing: "2px", marginBottom: "6px" }}>SIN CARGOS PERSONALIZADOS</p>
+            <p style={{ fontSize: "12px" }}>Crea cargos adicionales con permisos específicos para tu equipo.</p>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -220,16 +220,16 @@ function RolForm({ initial, onGuardar, onClose }) {
   return (
     <div>
       <h3 style={{ fontFamily: "var(--font-display)", fontSize: "22px", letterSpacing: "2px", marginBottom: "20px", paddingRight: "32px" }}>
-        {isEdit ? "EDITAR ROL" : "NUEVO ROL"}
+        {isEdit ? "EDITAR CARGO" : "NUEVO CARGO"}
       </h3>
       {error && (
         <div style={{ background: "rgba(211,47,47,0.12)", border: "1px solid rgba(211,47,47,0.3)", borderRadius: "6px", padding: "10px 14px", fontSize: "13px", color: "#ef9a9a", marginBottom: "14px" }}>⚠️ {error}</div>
       )}
-      <FormGroup label="Nombre del Rol">
+      <FormGroup label="Nombre del Cargo">
         <KInput value={label} onChange={e => setLabel(e.target.value)} placeholder="Ej. Coordinador de Área" />
       </FormGroup>
       {!isEdit && (
-        <FormGroup label="Clave (única, sin espacios)" mt={14}>
+        <FormGroup label="Clave interna (única, sin espacios)" mt={14}>
           <KInput value={key} onChange={e => setKey(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, "").slice(0, 8))} placeholder="Ej. COORD" />
           <p style={{ fontSize: "11px", color: "var(--gray)", marginTop: "5px" }}>Máx. 8 caracteres, solo letras y números.</p>
         </FormGroup>
@@ -282,7 +282,7 @@ function RolForm({ initial, onGuardar, onClose }) {
       <div style={{ display: "flex", gap: "10px", marginTop: "22px" }}>
         <button onClick={onClose} style={{ ...sharedStyles.btnSecundario, flex: 1 }}>Cancelar</button>
         <button onClick={handleGuardar} style={{ ...sharedStyles.btnPrimario, flex: 1 }}>
-          {isEdit ? "Guardar Cambios" : "Crear Rol"}
+          {isEdit ? "Guardar Cambios" : "Crear Cargo"}
         </button>
       </div>
     </div>
@@ -314,7 +314,7 @@ function ConfirmDeleteRol({ rolKey, onConfirm, onCancel }) {
   return (
     <div style={{ textAlign: "center", padding: "10px 0" }}>
       <div style={{ fontSize: "36px", marginBottom: "12px" }}>⚠️</div>
-      <h3 style={{ fontFamily: "var(--font-display)", fontSize: "18px", letterSpacing: "2px", marginBottom: "10px" }}>ELIMINAR ROL</h3>
+      <h3 style={{ fontFamily: "var(--font-display)", fontSize: "18px", letterSpacing: "2px", marginBottom: "10px" }}>ELIMINAR CARGO</h3>
       <p style={{ fontSize: "14px", color: "var(--text-dim)", marginBottom: "8px" }}>
         ¿Eliminar el rol <strong style={{ color: rol?.color }}>{rol?.label}</strong>?
       </p>

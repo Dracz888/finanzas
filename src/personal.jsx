@@ -64,7 +64,7 @@ export function PersonalTab({ user }) {
     refresh();
     if (id === user.id) {
       const fresh = getUsers().find(u => u.id === id);
-      if (fresh) sessionStorage.setItem("komplex_session", JSON.stringify({ id: fresh.id }));
+      if (fresh) sessionStorage.setItem("dc_session", JSON.stringify({ id: fresh.id }));
     }
     setEditTarget(null);
     return null;
@@ -81,9 +81,9 @@ export function PersonalTab({ user }) {
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px", flexWrap: "wrap", gap: "12px" }}>
         <div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", letterSpacing: "2px" }}>GESTIÓN DE PERSONAL</h1>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", letterSpacing: "2px" }}>GESTIÓN DE USUARIOS</h1>
           <p style={{ fontSize: "13px", color: "var(--gray2)", marginTop: "2px" }}>
-            {users.filter(u => u.activo).length} activos · {users.length} total
+            {users.filter(u => u.activo).length} activos · {users.length} total · Solo Gerente General y Súper Intendente pueden crear accesos
           </p>
         </div>
         <button onClick={() => setShowForm(true)} style={{
@@ -139,7 +139,7 @@ export function PersonalTab({ user }) {
 
               <div style={{ display: "flex", gap: "6px", flexShrink: 0, flexWrap: "wrap" }}>
                 <ActionBtn onClick={() => setEditTarget(u)} title="Editar usuario" color="#60a5fa">✏️</ActionBtn>
-                {u.rolKey !== "ADM" && (
+                {u.rolKey !== "GG" && u.rolKey !== "SI" && (
                   <ActionBtn onClick={() => setPermTarget(u)} title="Gestionar permisos" color="#a78bfa">🔐</ActionBtn>
                 )}
                 {!esMismo && (
@@ -403,7 +403,7 @@ function NuevoUsuarioForm({ onCrear, onClose }) {
   const [nombre,  setNombre]  = useState("");
   const [usuario, setUsuario] = useState("");
   const [pass,    setPass]    = useState("");
-  const [rolKey,  setRolKey]  = useState("AC");
+  const [rolKey,  setRolKey]  = useState("GADM");
   const [verPass, setVerPass] = useState(false);
   const [error,   setError]   = useState("");
 
