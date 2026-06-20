@@ -7,13 +7,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo-k.jpg', 'logo-dark.jpg', 'logo-light.jpg'],
       manifest: {
-        name: 'Komplex GYM — Sistema Interno',
-        short_name: 'Komplex GYM',
-        description: 'Sistema interno de gestión para Komplex GYM',
-        theme_color: '#D32F2F',
-        background_color: '#0a0a0a',
+        name: 'Finanzas — Mis finanzas personales',
+        short_name: 'Finanzas',
+        description: 'App personal para registrar y gestionar mis finanzas',
+        theme_color: '#0b0d12',
+        background_color: '#0b0d12',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',

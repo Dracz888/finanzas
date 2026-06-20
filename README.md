@@ -1,16 +1,40 @@
-# React + Vite
+# Finanzas — App de finanzas personales
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación móvil (PWA) hecha con React + Vite para registrar y gestionar finanzas
+personales. Funciona offline e instalable en el celular. Los datos se guardan
+localmente en el dispositivo (`localStorage`).
 
-Currently, two official plugins are available:
+## Pestañas
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 1. Registro
+Registro rápido de movimientos:
+- **Fecha** (hoy por defecto, se puede cambiar para registros posteriores)
+- **Categoría** (las creadas en Configuración)
+- **Método de pago**: Dólares, Bs, Cop, Bancolombia, USDT
+  *(Cop = pesos colombianos en efectivo, Bancolombia = pesos en el banco)*
+- **Monto** en la moneda del método
+- **Tasa** (la eliges tú; unidades locales por 1 USD)
+- **Monto USD** = monto ÷ tasa, calculado automáticamente
+  *(con Dólares o USDT la tasa es 1)*
 
-## React Compiler
+### 2. Gestión
+Resumen financiero:
+- Indicadores principales: **Ingresos, Egresos, Gastos**
+- **Resultado Neto** (ingresos − egresos − gastos)
+- **Dinero disponible** por cada moneda/método
+- Gráficos: comparativo de ingresos vs salidas, distribución de salidas por
+  categoría (dona) y evolución mensual.
+- Filtro por periodo (Todo, este mes, mes anterior o un mes concreto).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 3. Configuración
+Crear y eliminar **categorías**. Cada categoría tiene un **nombre** y un **tipo**:
+Ingreso, Egreso o Gasto.
 
-## Expanding the ESLint configuration
+## Desarrollo
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev      # servidor de desarrollo
+npm run build    # build de producción
+npm run lint     # linter
+```
