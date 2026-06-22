@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TYPE_LIST, uid } from './finance.js';
+import { exportJSON, exportXLSX } from './export.js';
 import { Icon } from './ui.jsx';
 
 export default function Configuracion({ categories, setCategories, records }) {
@@ -103,6 +104,35 @@ export default function Configuracion({ categories, setCategories, records }) {
             </div>
           )
         )}
+      </section>
+
+      <section className="card">
+        <h2 className="card-title"><Icon.download width={18} height={18} /> Exportar datos</h2>
+        <p className="hint">
+          Descarga tus {records.length} registro{records.length === 1 ? '' : 's'} para
+          guardarlos o llevarlos a otra app.
+        </p>
+        <div className="export-actions">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => exportXLSX(records)}
+            disabled={records.length === 0}
+          >
+            <Icon.sheet width={18} height={18} /> Exportar a Excel (.xlsx)
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => exportJSON(records, categories)}
+          >
+            <Icon.download width={18} height={18} /> Copia de seguridad (JSON)
+          </button>
+        </div>
+        <p className="hint">
+          El Excel incluye fecha, categoría, tipo, método de pago, monto, tasa y monto en USD.
+          La copia JSON guarda además tus categorías para restaurar todo en otra app.
+        </p>
       </section>
     </div>
   );

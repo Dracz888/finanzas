@@ -124,6 +124,18 @@ input:disabled { opacity: .55; cursor: not-allowed; }
 .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
 .btn-primary:not(:disabled):active { transform: scale(.98); }
 
+.export-actions { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+.btn-secondary {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px; border-radius: 13px;
+  background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+  font-weight: 600; font-size: .95rem; cursor: pointer; transition: .15s;
+}
+.btn-secondary svg { color: var(--accent); }
+.btn-secondary:not(:disabled):hover { border-color: var(--accent); }
+.btn-secondary:disabled { opacity: .45; cursor: not-allowed; }
+.btn-secondary:not(:disabled):active { transform: scale(.98); }
+
 .icon-btn {
   background: transparent; border: none; color: var(--text-dim);
   cursor: pointer; padding: 6px; border-radius: 8px; display: grid; place-items: center;
