@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   TYPES, fmt, fmtUSD, monthKey, monthLabel,
   filterByPeriod, totalsByType, balancesByMethod, netByMethodUSD,
-  outflowByCategory, monthlySeries,
+  outflowByCategory, monthlySeries, totalsByPrestamo,
 } from './finance.js';
 import { Icon, BarCompare, Donut, ColumnChart } from './ui.jsx';
 
@@ -37,6 +37,7 @@ export default function Gestion({ records, methods }) {
   const balances = useMemo(() => balancesByMethod(filtered, methods), [filtered, methods]);
   const netUSD = useMemo(() => netByMethodUSD(filtered), [filtered]);
   const outflow = useMemo(() => outflowByCategory(filtered), [filtered]);
+  const prestamo = useMemo(() => totalsByPrestamo(filtered), [filtered]);
   const series = useMemo(
     () => monthlySeries(records).map((s) => ({ ...s, label: monthLabel(s.key) })),
     [records]
@@ -107,6 +108,28 @@ export default function Gestion({ records, methods }) {
         <Kpi label="Egresos"  value={fmtUSD(totals.egreso)}  color={TYPES.egreso.color}  icon={<Icon.arrowDown width={16} height={16} />} />
         <Kpi label="Gastos"   value={fmtUSD(totals.gasto)}   color={TYPES.gasto.color}   icon={<Icon.arrowDown width={16} height={16} />} />
       </div>
+
+      {/* Préstamos y transferencias: no afectan el Resultado Neto */}
+      {(prestamo.received > 0 || prestamo.given > 0) && (
+        <section className="card">
+          <h2 className="card-title"><Icon.swap width={18} height={18} /> Préstamos y Transferencias</h2>
+          <ul className="balance-list">
+            <li className="balance-item">
+              <div className="bl-left"><strong>Recibido</strong></div>
+              <div className="bl-right"><span className="bl-amount neutral">{fmtUSD(prestamo.received)}</span></div>
+            </li>
+            <li className="balance-item">
+              <div className="bl-left"><strong>Otorgado</strong></div>
+              <div className="bl-right"><span className="bl-amount neutral">{fmtUSD(prestamo.given)}</span></div>
+            </li>
+          </ul>
+          {Math.abs(prestamo.neto) > 0.005 && (
+            <p className={`prestamo-net ${prestamo.neto > 0 ? 'pos' : 'neg'}`}>
+              {prestamo.neto > 0 ? 'Ganaste' : 'Perdiste'} {fmtUSD(Math.abs(prestamo.neto))} en préstamos/transferencias
+            </p>
+          )}
+        </section>
+      )}
 
       {/* Disponible por método / moneda */}
       <section className="card">

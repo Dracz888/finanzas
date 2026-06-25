@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
-  TYPES, uid, todayISO, toUSD, fmt, fmtUSD, findMethod,
+  TYPES, TYPE_LIST, uid, todayISO, toUSD, fmt, fmtUSD, findMethod,
 } from './finance.js';
 import { Icon } from './ui.jsx';
 
@@ -74,11 +74,11 @@ export default function Registro({ categories, records, setRecords, methods }) {
             ) : (
               <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
                 <option value="">Selecciona una categoría…</option>
-                {['ingreso', 'egreso', 'gasto'].map((tp) => {
-                  const opts = categories.filter((c) => c.type === tp);
+                {TYPE_LIST.map((tp) => {
+                  const opts = categories.filter((c) => c.type === tp.id);
                   if (!opts.length) return null;
                   return (
-                    <optgroup key={tp} label={TYPES[tp].label}>
+                    <optgroup key={tp.id} label={tp.label}>
                       {opts.map((c) => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}

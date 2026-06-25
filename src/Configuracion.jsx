@@ -9,6 +9,9 @@ export default function Configuracion({
   const [name, setName] = useState('');
   const [type, setType] = useState('ingreso');
 
+  const [editingCatId, setEditingCatId] = useState(null);
+  const [catDraft, setCatDraft] = useState({ name: '', type: '' });
+
   const [mLabel, setMLabel] = useState('');
   const [mShort, setMShort] = useState('');
   const [mSymbol, setMSymbol] = useState('');
@@ -55,6 +58,36 @@ export default function Configuracion({
     if (window.confirm(msg)) {
       setCategories(categories.filter((c) => c.id !== id));
     }
+  };
+
+  const startEditCat = (c) => {
+    setEditingCatId(c.id);
+    setCatDraft({ name: c.name, type: c.type });
+  };
+
+  const cancelEditCat = () => setEditingCatId(null);
+
+  const saveCat = (c) => {
+    const newName = catDraft.name.trim();
+    if (!newName) return;
+    const typeChanged = catDraft.type !== c.type;
+    const nameChanged = newName !== c.name;
+    setCategories(categories.map((x) => (
+      x.id === c.id ? { ...x, name: newName, type: catDraft.type } : x
+    )));
+    if ((typeChanged || nameChanged) && records.some((r) => r.categoryId === c.id)) {
+      const cascade = window.confirm(
+        'Esta categoría tiene registros asociados. ¿Actualizar también el tipo/nombre en esos registros existentes?'
+      );
+      if (cascade) {
+        setRecords(records.map((r) => (
+          r.categoryId === c.id
+            ? { ...r, type: catDraft.type, categoryName: newName }
+            : r
+        )));
+      }
+    }
+    setEditingCatId(null);
   };
 
   const grouped = TYPE_LIST.map((t) => ({
@@ -150,15 +183,58 @@ export default function Configuracion({
                 <span className="count">{items.length}</span>
               </div>
               <ul className="cat-list">
-                {items.map((c) => (
-                  <li key={c.id} className="cat-item">
-                    <span className="dot" style={{ background: t.color }} />
-                    <span className="cat-name">{c.name}</span>
-                    <button className="icon-btn danger" onClick={() => remove(c.id)} aria-label="Eliminar">
-                      <Icon.trash width={18} height={18} />
-                    </button>
-                  </li>
-                ))}
+                {items.map((c) => {
+                  if (editingCatId === c.id) {
+                    return (
+                      <li key={c.id} className="cat-item cat-edit">
+                        <input
+                          type="text"
+                          value={catDraft.name}
+                          onChange={(e) => setCatDraft({ ...catDraft, name: e.target.value })}
+                          maxLength={40}
+                        />
+                        <div className="type-picker">
+                          {TYPE_LIST.map((tp) => (
+                            <button
+                              type="button"
+                              key={tp.id}
+                              className={`type-chip ${catDraft.type === tp.id ? 'active' : ''}`}
+                              style={catDraft.type === tp.id ? { borderColor: tp.color, color: tp.color } : undefined}
+                              onClick={() => setCatDraft({ ...catDraft, type: tp.id })}
+                            >
+                              {tp.label}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="cat-edit-actions">
+                          <button type="button" className="btn-secondary" onClick={cancelEditCat}>
+                            <Icon.x width={16} height={16} /> Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-primary"
+                            disabled={!catDraft.name.trim()}
+                            onClick={() => saveCat(c)}
+                          >
+                            <Icon.check width={16} height={16} /> Guardar
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  }
+                  return (
+                    <li key={c.id} className="cat-item">
+                      <span className="dot" style={{ background: t.color }} />
+                      <span className="cat-name">{c.name}</span>
+                      <button className="icon-btn" onClick={() => startEditCat(c)} aria-label="Editar">
+                        <Icon.edit width={18} height={18} />
+                      </button>
+                      <button className="icon-btn danger" onClick={() => remove(c.id)} aria-label="Eliminar">
+                        <Icon.trash width={18} height={18} />
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )

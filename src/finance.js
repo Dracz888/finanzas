@@ -3,12 +3,19 @@
 // ============================================================
 
 // --- Tipos de categoría ---------------------------------------------------
+// "principal" son ingresos/egresos/gastos reales: entran en el Resultado Neto.
+// "prestamo" son préstamos y transferencias (lo que entra se compensa con lo
+// que sale): no afectan el Resultado Neto, tienen su propia tarjeta en Gestión.
 export const TYPES = {
-  ingreso: { id: 'ingreso', label: 'Ingreso', color: '#16c784', sign: +1 },
-  egreso:  { id: 'egreso',  label: 'Egreso',  color: '#ea3943', sign: -1 },
-  gasto:   { id: 'gasto',   label: 'Gasto',   color: '#f0a020', sign: -1 },
+  ingreso:      { id: 'ingreso',      label: 'Ingreso',     color: '#16c784', sign: +1, group: 'principal' },
+  egreso:       { id: 'egreso',       label: 'Egreso',      color: '#ea3943', sign: -1, group: 'principal' },
+  gasto:        { id: 'gasto',        label: 'Gasto',       color: '#f0a020', sign: -1, group: 'principal' },
+  prestamo_in:  { id: 'prestamo_in',  label: 'Préstamo +',  color: '#a855f7', sign: +1, group: 'prestamo' },
+  prestamo_out: { id: 'prestamo_out', label: 'Préstamo −',  color: '#7c3aed', sign: -1, group: 'prestamo' },
 };
 export const TYPE_LIST = Object.values(TYPES);
+export const PRINCIPAL_TYPES = TYPE_LIST.filter((t) => t.group === 'principal').map((t) => t.id);
+export const PRESTAMO_TYPES = TYPE_LIST.filter((t) => t.group === 'prestamo').map((t) => t.id);
 
 // --- Métodos de pago ------------------------------------------------------
 // Cada método tiene su moneda nativa. Dólares y USDT son USD (tasa fija 1).
@@ -186,10 +193,11 @@ export function netByMethodUSD(records) {
 }
 
 // Distribución de salidas (egreso + gasto) por categoría, en USD
+// Excluye préstamos/transferencias: no son un gasto real.
 export function outflowByCategory(records) {
   const map = {};
   for (const r of records) {
-    if (r.type === 'ingreso') continue;
+    if (r.type === 'ingreso' || PRESTAMO_TYPES.includes(r.type)) continue;
     const k = r.categoryName || 'Sin categoría';
     map[k] = (map[k] || 0) + (Number(r.montoUSD) || 0);
   }
@@ -199,9 +207,11 @@ export function outflowByCategory(records) {
 }
 
 // Evolución mensual (ingresos / salidas / neto en USD)
+// Excluye préstamos/transferencias de la evolución de ingresos vs salidas.
 export function monthlySeries(records) {
   const map = {};
   for (const r of records) {
+    if (!PRINCIPAL_TYPES.includes(r.type)) continue;
     const k = monthKey(r.date);
     if (!k) continue;
     if (!map[k]) map[k] = { key: k, ingreso: 0, salida: 0 };
@@ -212,4 +222,15 @@ export function monthlySeries(records) {
   return Object.values(map)
     .sort((a, b) => a.key.localeCompare(b.key))
     .map((x) => ({ ...x, neto: x.ingreso - x.salida }));
+}
+
+// Totales de préstamos y transferencias (en USD): lo recibido, lo dado y el
+// resultado neto (positivo = ganaste, negativo = perdiste, 0 = se compensó).
+export function totalsByPrestamo(records) {
+  let received = 0, given = 0;
+  for (const r of records) {
+    if (r.type === 'prestamo_in') received += Number(r.montoUSD) || 0;
+    else if (r.type === 'prestamo_out') given += Number(r.montoUSD) || 0;
+  }
+  return { received, given, neto: received - given };
 }

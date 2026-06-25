@@ -152,11 +152,11 @@ export default function Historial({ categories, records, setRecords, methods }) 
                             {r.categoryName} (eliminada)
                           </option>
                         )}
-                        {['ingreso', 'egreso', 'gasto'].map((tp) => {
-                          const opts = categories.filter((c) => c.type === tp);
+                        {TYPE_LIST.map((tp) => {
+                          const opts = categories.filter((c) => c.type === tp.id);
                           if (!opts.length) return null;
                           return (
-                            <optgroup key={tp} label={TYPES[tp].label}>
+                            <optgroup key={tp.id} label={tp.label}>
                               {opts.map((c) => (
                                 <option key={c.id} value={c.id}>{c.name}</option>
                               ))}

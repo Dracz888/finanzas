@@ -220,6 +220,19 @@ input:disabled { opacity: .55; cursor: not-allowed; }
 .rec-edit-actions { display: flex; gap: 10px; }
 .rec-edit-actions .btn-primary, .rec-edit-actions .btn-secondary { flex: 1; width: auto; margin-top: 0; }
 
+.cat-edit {
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 14px; background: var(--bg3); border-radius: 14px;
+  border: 1px solid var(--border2);
+}
+.cat-edit input[type="text"] {
+  width: 100%; padding: 10px 12px; border-radius: 9px;
+  border: 1px solid var(--border2); background: var(--bg2); color: var(--text);
+  font-size: .9rem;
+}
+.cat-edit-actions { display: flex; gap: 10px; }
+.cat-edit-actions .btn-primary, .cat-edit-actions .btn-secondary { flex: 1; width: auto; margin-top: 0; }
+
 /* ---------- Gestión ---------- */
 .period-bar { display: flex; gap: 8px; flex-wrap: wrap; }
 .period-bar button, .period-bar select {
@@ -260,6 +273,22 @@ input:disabled { opacity: .55; cursor: not-allowed; }
 .bl-right { text-align: right; }
 .bl-amount { font-weight: 800; font-size: 1.02rem; color: var(--green); }
 .bl-amount.neg { color: var(--red); }
+.bl-amount.neutral { color: var(--text); }
+
+.prestamo-net {
+  margin-top: 12px; padding: 12px 14px; border-radius: 12px;
+  font-size: .88rem; font-weight: 700; text-align: center;
+}
+.prestamo-net.pos {
+  background: color-mix(in srgb, var(--green) 12%, var(--bg3));
+  border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
+  color: var(--green);
+}
+.prestamo-net.neg {
+  background: color-mix(in srgb, var(--red) 12%, var(--bg3));
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+  color: var(--red);
+}
 
 /* Barras comparativas */
 .bars { display: flex; flex-direction: column; gap: 14px; }
