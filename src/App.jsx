@@ -3,12 +3,14 @@ import { store } from './finance.js';
 import { Icon } from './ui.jsx';
 import Configuracion from './Configuracion.jsx';
 import Registro from './Registro.jsx';
+import Historial from './Historial.jsx';
 import Gestion from './Gestion.jsx';
 
 const TABS = [
-  { id: 'registro', label: 'Registro',      icon: Icon.plus },
-  { id: 'gestion',  label: 'Gestión',       icon: Icon.chart },
-  { id: 'config',   label: 'Configuración', icon: Icon.settings },
+  { id: 'registro',  label: 'Registro',      icon: Icon.plus },
+  { id: 'historial', label: 'Historial',     icon: Icon.list },
+  { id: 'gestion',   label: 'Gestión',       icon: Icon.chart },
+  { id: 'config',    label: 'Configuración', icon: Icon.settings },
 ];
 
 export default function App() {
@@ -45,6 +47,9 @@ export default function App() {
       <main className="content">
         {tab === 'registro' && (
           <Registro categories={categories} records={records} setRecords={setRecords} methods={methods} />
+        )}
+        {tab === 'historial' && (
+          <Historial categories={categories} records={records} setRecords={setRecords} methods={methods} />
         )}
         {tab === 'gestion' && <Gestion records={records} methods={methods} />}
         {tab === 'config' && (

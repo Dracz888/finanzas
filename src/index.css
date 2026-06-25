@@ -210,6 +210,15 @@ input:disabled { opacity: .55; cursor: not-allowed; }
   margin-top: 4px; font-size: .78rem; font-style: italic; color: var(--text-dim);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+.rec-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+
+.rec-edit {
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 14px; background: var(--bg3); border-radius: 14px;
+  border: 1px solid var(--border2);
+}
+.rec-edit-actions { display: flex; gap: 10px; }
+.rec-edit-actions .btn-primary, .rec-edit-actions .btn-secondary { flex: 1; width: auto; margin-top: 0; }
 
 /* ---------- Gestión ---------- */
 .period-bar { display: flex; gap: 8px; flex-wrap: wrap; }
