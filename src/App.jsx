@@ -50,7 +50,8 @@ export default function App() {
         {tab === 'config' && (
           <Configuracion
             categories={categories} setCategories={setCategories}
-            records={records} methods={methods} setMethods={setMethods}
+            records={records} setRecords={setRecords}
+            methods={methods} setMethods={setMethods}
           />
         )}
       </main>

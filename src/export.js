@@ -5,7 +5,7 @@
 //  sin compresión) para no añadir dependencias externas. Produce un
 //  archivo Excel nativo que abre sin advertencias de formato.
 
-import { TYPES, findMethod, todayISO } from './finance.js';
+import { TYPES, findMethod, todayISO, uid } from './finance.js';
 
 // --- Descarga de un Blob como archivo -------------------------------------
 function downloadBlob(blob, filename) {
@@ -38,6 +38,75 @@ export function exportJSON(records, categories, methods) {
     type: 'application/json',
   });
   downloadBlob(blob, `finanzas-copia-${todayISO()}.json`);
+}
+
+// ============================================================
+//  Importación de una copia de seguridad (JSON) o backup de otra app
+// ============================================================
+// Fusiona categorías y métodos por nombre (evita duplicados) y agrega
+// los registros nuevos, reasignando sus referencias a los ids ya
+// existentes cuando coinciden.
+export function mergeBackup({ categories, methods, records }, payload) {
+  if (payload?.schema !== 'finanzas.backup' || !Array.isArray(payload.records)) {
+    throw new Error('El archivo no es una copia de seguridad de Finanzas válida.');
+  }
+
+  const catKey = (name, type) => `${String(name).trim().toLowerCase()}::${type}`;
+  const nextCategories = [...categories];
+  const catIndex = new Map(nextCategories.map((c) => [catKey(c.name, c.type), c.id]));
+  const catIdMap = new Map();
+  for (const c of payload.categories || []) {
+    const key = catKey(c.name, c.type);
+    if (catIndex.has(key)) {
+      catIdMap.set(c.id, catIndex.get(key));
+    } else {
+      const fresh = { id: uid(), name: c.name, type: c.type };
+      nextCategories.push(fresh);
+      catIndex.set(key, fresh.id);
+      catIdMap.set(c.id, fresh.id);
+    }
+  }
+
+  const nextMethods = [...methods];
+  const methodById = new Set(nextMethods.map((m) => m.id));
+  const methodByLabel = new Map(nextMethods.map((m) => [m.label.toLowerCase(), m.id]));
+  const methodIdMap = new Map();
+  for (const m of payload.methods || []) {
+    if (methodById.has(m.id)) {
+      methodIdMap.set(m.id, m.id);
+    } else if (methodByLabel.has(m.label.toLowerCase())) {
+      methodIdMap.set(m.id, methodByLabel.get(m.label.toLowerCase()));
+    } else {
+      nextMethods.push(m);
+      methodById.add(m.id);
+      methodByLabel.set(m.label.toLowerCase(), m.id);
+      methodIdMap.set(m.id, m.id);
+    }
+  }
+
+  const dedupeKey = (r) => `${r.date}|${r.categoryId}|${r.method}|${r.monto}|${r.nota}`;
+  const seen = new Set(records.map(dedupeKey));
+  const imported = [];
+  for (const r of payload.records) {
+    const categoryId = catIdMap.get(r.categoryId) ?? r.categoryId;
+    const method = methodIdMap.get(r.method) ?? r.method;
+    const categoryName = nextCategories.find((c) => c.id === categoryId)?.name ?? r.categoryName;
+    const candidate = { ...r, categoryId, method, categoryName };
+    const key = dedupeKey(candidate);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    imported.push({ ...candidate, id: uid() });
+  }
+
+  const nextRecords = [...records, ...imported].sort(
+    (a, b) => b.date.localeCompare(a.date) || (b.createdAt || 0) - (a.createdAt || 0)
+  );
+
+  return { categories: nextCategories, methods: nextMethods, records: nextRecords, added: imported.length };
+}
+
+export function readBackupFile(file) {
+  return file.text().then((text) => JSON.parse(text));
 }
 
 // ============================================================

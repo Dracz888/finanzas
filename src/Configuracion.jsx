@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { TYPE_LIST, uid } from './finance.js';
-import { exportJSON, exportXLSX } from './export.js';
+import { exportJSON, exportXLSX, mergeBackup, readBackupFile } from './export.js';
 import { Icon } from './ui.jsx';
 
-export default function Configuracion({ categories, setCategories, records, methods, setMethods }) {
+export default function Configuracion({
+  categories, setCategories, records, setRecords, methods, setMethods,
+}) {
   const [name, setName] = useState('');
   const [type, setType] = useState('ingreso');
 
@@ -13,6 +15,25 @@ export default function Configuracion({ categories, setCategories, records, meth
   const [mCurrency, setMCurrency] = useState('');
   const [mFixed, setMFixed] = useState(false);
   const [mNote, setMNote] = useState('');
+
+  const fileInputRef = useRef(null);
+  const [importMsg, setImportMsg] = useState(null);
+
+  const handleImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const payload = await readBackupFile(file);
+      const result = mergeBackup({ categories, methods, records }, payload);
+      setCategories(result.categories);
+      setMethods(result.methods);
+      setRecords(result.records);
+      setImportMsg({ ok: true, text: `Se importaron ${result.added} registro(s) nuevos.` });
+    } catch (err) {
+      setImportMsg({ ok: false, text: err.message || 'No se pudo importar el archivo.' });
+    }
+  };
 
   const add = (e) => {
     e.preventDefault();
@@ -261,6 +282,34 @@ export default function Configuracion({ categories, setCategories, records, meth
           El Excel incluye fecha, categoría, tipo, método de pago, monto, tasa y monto en USD.
           La copia JSON guarda además tus categorías para restaurar todo en otra app.
         </p>
+      </section>
+
+      <section className="card">
+        <h2 className="card-title"><Icon.sheet width={18} height={18} /> Importar copia de seguridad</h2>
+        <p className="hint">
+          Carga un archivo JSON exportado desde esta app (o migrado desde Excel) para agregar
+          sus categorías, métodos y registros a los que ya tienes. No se duplican registros
+          idénticos.
+        </p>
+        <div className="export-actions">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json"
+            onChange={handleImportFile}
+            style={{ display: 'none' }}
+          />
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Icon.download width={18} height={18} /> Importar JSON
+          </button>
+        </div>
+        {importMsg && (
+          <p className={`hint ${importMsg.ok ? '' : 'warn'}`}>{importMsg.text}</p>
+        )}
       </section>
     </div>
   );
