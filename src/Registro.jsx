@@ -168,12 +168,12 @@ export default function Registro({ categories, records, setRecords, methods }) {
               const m = findMethod(methods, r.method);
               return (
                 <li key={r.id} className="rec-item">
-                  <span className="rec-bar" style={{ background: t.color }} />
+                  <span className="rec-bar" style={{ background: t?.color || 'var(--text-dim)' }} />
                   <div className="rec-main">
                     <div className="rec-top">
                       <strong>{r.categoryName}</strong>
-                      <span className="rec-usd" style={{ color: t.color }}>
-                        {t.sign > 0 ? '+' : '−'}{fmtUSD(r.montoUSD)}
+                      <span className="rec-usd" style={{ color: t?.color }}>
+                        {t?.sign > 0 ? '+' : '−'}{fmtUSD(r.montoUSD)}
                       </span>
                     </div>
                     <div className="rec-sub">
