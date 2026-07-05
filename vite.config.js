@@ -2,8 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// En GitHub Pages la app vive en /lista-tareas/; en local y Vercel vive en /.
-const base = process.env.GITHUB_ACTIONS ? '/lista-tareas/' : '/'
+// En GitHub Pages la app vive en /finanzas/ (el nombre del repositorio);
+// en local y Vercel vive en /.
+const base = process.env.GITHUB_ACTIONS ? '/finanzas/' : '/'
 
 export default defineConfig({
   base,
